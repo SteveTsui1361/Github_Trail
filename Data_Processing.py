@@ -1,9 +1,7 @@
-
 # coding: utf-8
+# This code used to forecasting daily streamflow by first order exponential smoothing model
 
-# In[ ]:
-
-
+# Import needed modules
 import numpy as np                  # vectors and matrices
 import pandas as pd                 # tables and data manipulations
 import warnings                     # There would be no warnings anymore
@@ -18,10 +16,6 @@ Timeseries.head()
 Timeseries.to_csv("Timeseries.csv", sep=',')
 Daily = Timeseries.resample('D').mean()
 
-
-# In[ ]:
-
-
 # Check the diachrge plot
 get_ipython().run_line_magic('matplotlib', 'inline')
 time = pd.to_datetime(Daily.index)
@@ -30,10 +24,6 @@ plt.xlabel('Time')
 plt.ylabel('Discharge (cfs)')
 plt.title('Discharge Hydrograph')
 plt.show()
-
-
-# In[ ]:
-
 
 # Building a first order exponential smoothing model
 class Exp_Smoothing:
@@ -62,19 +52,10 @@ class Exp_Smoothing:
                 smooth = self.alpha*val_now + (1-self.alpha)*val_pre
                 self.result.append(smooth)
             self.Smooth.append(smooth)
-
-
-# In[ ]:
-
-
 model = Exp_Smoothing(Daily.discharge, 1)
 model.exponential_smoothing()
 result = model.result
 print(result)
-
-
-# In[ ]:
-
 
 # Plot output from first order model
 plt.plot(time, Daily.discharge, time, result)
@@ -82,10 +63,6 @@ plt.xlabel('Time')
 plt.ylabel('Discharge (cfs)')
 plt.title('Discharge Hydrograph')
 plt.show()
-
-
-# In[ ]:
-
 
 # Define a class for prediction function
 class Exp_Smoothing_Prediction:
@@ -119,19 +96,10 @@ class Exp_Smoothing_Prediction:
                 smooth = self.alpha*val_now + (1-self.alpha)*val_pre
                 self.result.append(smooth)
             self.Smooth.append(smooth)
-
-
-# In[ ]:
-
-
 model_p = Exp_Smoothing_Prediction(Daily.discharge, 0.8, 5)
 model_p.exponential_smoothing()
 result = model_p.result
 print(result)
-
-
-# In[ ]:
-
 
 # Plot the discharge of observation and prediction
 dates = pd.date_range('20190101', periods=len(result))
@@ -140,10 +108,6 @@ plt.xlabel('Time')
 plt.ylabel('Discharge (cfs)')
 plt.title('Discharge Hydrograph')
 plt.show()
-
-
-# In[ ]:
-
 
 # Function of returning the error of prediction
 from sklearn.metrics import mean_squared_error
@@ -160,11 +124,6 @@ def Train_Score(param, series, validsize, loss_function=mean_squared_error):
     val = list(series[-validsize:])
     return (loss_function(result, val))
 
-
-# In[ ]:
-
-
 # Output the error
 a1 = Train_Score(0.8, Daily.discharge, 5, loss_function=mean_squared_error)
 print('The error of prediction for 5 more days is:'+ str(a1))
-
